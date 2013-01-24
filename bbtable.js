@@ -121,4 +121,17 @@ function formulaActual() {
     return tsort(defs);
 }
 
+var recomputer = null;
+
+tB.addEventListener('click', function() {
+    if (recomputer === null) recomputer = setTimeout(recompute, 1);
+    return true;
+});
+
+function recompute() {
+    recomputer = null;
+    byId('code0').value = formulaActual();
+    play();
+}
+
 // </script>
