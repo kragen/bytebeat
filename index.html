@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html><body>
 <form id="form">
+<div style="display:none">
   Play
   <input id="code0" type="text" size="40" value="t & t>>8"> and optionally
   <input id="code1" type="text" size="40" value=""><br>for
@@ -16,6 +17,33 @@
   <br>Call this tune
   <input id="title" type="text" size="40">.
   <br>
+</div>
+<style>
+body { background-color: black; color: red }
+td { border: 1px solid red }
+th { border: 1px solid gray; padding: 0.25em }
+.sum { background-color: white; border-color: white; min-width: 5px }
+.or { background-color: blue; border-color: blue; min-width: 5px }
+.xor { background-color: #117; min-width: 5px; border-color: #117 }
+.blank { border-color: black }
+</style>
+<table cellpadding=0 cellspacing=0>
+<tr><td colspan=3 rowspan=4 class=blank><th>t<td><td><td><td><td><td><td><td><td><td>
+<tr><th>t&lt;&lt;<select><option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9</select><td><td><td><td><td><td><td><td><td><td>
+<tr><th>t&lt;&lt;<select><option>1<option>2<option selected>3<option>4<option>5<option>6<option>7<option>8<option>9</select><td><td><td><td><td><td><td><td><td><td>
+<tr><th>t&lt;&lt;<select><option>1<option>2<option>3<option selected>4<option>5<option>6<option>7<option>8<option>9</select><td><td><td><td><td><td><td><td><td><td>
+<tr><td class=xor colspan=3><th>xa^xb^xc<td><td><td><td><td><td><td><td><td><td>
+<tr><td class=xor rowspan=5><td class=or colspan=2><th>oa|ob|oc<td><td><td><td><td><td><td><td><td><td>
+<tr><td class=or><td class=sum><th>sa+sb+sc<td><td><td><td><td><td><td><td><td><td>
+<tr><td class=or><td class=sum><th class=sum><th>sa <th>sb <th>sc <th>oa <th>ob <th>oc <th>xa <th>xb <th>xc <th> >><select><option>0<option>1<option>2<option>3<option>4<option>5<option>6<option>7<option>8<option>9</select> audio
+<tr><td class=or><td class=sum colspan=5>&nbsp;<td colspan=3 class=or><td colspan=3 rowspan=2 class=xor>
+<tr><td class=or colspan=9>&nbsp;
+<tr><td colspan=13 class=xor>&nbsp;
+</table>
+
+<table cellpadding=0 cellspacing=0 id="iomatrix"><tbody></tbody></table>
+
+<script src="bbtable.js"></script>
   <input id="play" type="submit" value="Hit it."
          style="width: 938px; font-size: 120%">
 </form>
