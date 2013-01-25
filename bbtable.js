@@ -1,7 +1,24 @@
+// To do next:
+// - make dropdowns actually control the shift
+
 var tbl = document.getElementById('iomatrix')
   , tB = tbl.firstChild          // tbody
 ;
 
+function Hechicero(el) {
+    this.el = el;
+}
+Hechicero.prototype =
+    { en: function(papa) {
+          if (papa.el) papa = papa.el;
+          papa.appendChild(this.el);
+          return this;
+      }
+    , con: function(texto) {
+          this.el.appendChild(document.createTextNode(texto));
+          return this;
+      }
+    };
 
 function haz(tagName, attrs) {
     if (!attrs) attrs = {};
@@ -9,19 +26,7 @@ function haz(tagName, attrs) {
     for (var attr in attrs) {
         if (attrs.hasOwnProperty(attr)) el.setAttribute(attr, attrs[attr]);
     }
-
-    return (
-        { el: el
-        , en: function(papa) {
-          if (papa.el) papa = papa.el;
-          papa.appendChild(this.el);
-          return this;
-        }
-        , con: function(texto) {
-          this.el.appendChild(document.createTextNode(texto));
-          return this;
-        }
-        });
+    return new Hechicero(el);
 }
 
 function AND(exprs) {
@@ -30,10 +35,38 @@ function AND(exprs) {
     return '(' + exprs.join(' & ') + ')';
 }
 
-var filas = [ {text: 't'}
-            , {text: 'xa^xb^xc', 'class': 'xor'}
-            , {text: 'oa|ob|oc', 'class': 'or'}
-            , {text: 'sa+sb+sc', 'class': 'sum'}
+function Fila(texto, class_) {
+    this.texto = texto;
+    this['class'] = class_;
+}
+Fila.prototype.hazTitulo = function() {
+    return haz('th', {'class': this['class']}).con(this.texto);
+};
+
+function fila(texto, class_) {
+    return new Fila(texto, class_);
+}
+
+function FilaDom(texto, dom) {
+    this.texto = texto;
+    this.dom = dom;
+}
+FilaDom.prototype.hazTitulo = function() {
+    return new Hechicero(this.dom.el.cloneNode(document, true));
+}
+
+var tCorrido = haz('th').con('t <<')
+  , corridoSelect = haz('select').en(tCorrido)
+;
+for (var ii = 0; ii < 10; ii++) haz('option').con(ii).en(corridoSelect);
+
+var filas = [ fila('t')
+            , new FilaDom('t << e1', tCorrido)
+            , new FilaDom('t << e2', tCorrido)
+            , new FilaDom('t << e3', tCorrido)
+            , fila('xa^xb^xc', 'xor')
+            , fila('oa|ob|oc', 'or')
+            , fila('sa+sb+sc', 'sum')
             ];
 var columns = [ {text: 'sa', 'class': 'sum'}
               , {text: 'sb', 'class': 'sum'}
@@ -51,11 +84,13 @@ for (var ii = 0; ii < filas.length; ii++) {
     var tr = haz('tr').en(tB)
       , fila = filas[ii]
     ;
-    haz('th', {'class': fila['class']}).con(fila.text).en(tr);
+
+    fila.hazTitulo().en(tr);
+
     for (var jj = 0; jj < columns.length; jj++) {
         var col = columns[jj];
         if (!col.entradas) col.entradas = {};
-        col.entradas[fila.text] = haz('input', {type: 'checkbox'}).en(haz('td').en(tr)).el;
+        col.entradas[fila.texto] = haz('input', {type: 'checkbox'}).en(haz('td').en(tr)).el;
     }
 }
 
@@ -124,7 +159,8 @@ function formulaActual() {
 var recomputer = null;
 
 tB.addEventListener('click', function() {
-    if (recomputer === null) recomputer = setTimeout(recompute, 1);
+    if (recomputer !== null) clearTimeout(recomputer);
+    recomputer = setTimeout(recompute, 200);
     return true;
 });
 
