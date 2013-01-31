@@ -5,6 +5,15 @@ var tbl = document.getElementById('iomatrix')
   , tB = tbl.firstChild          // tbody
 ;
 
+function select(varname) {
+    var rv = haz('select');
+    for (var ii = 0; ii < 10; ii++) haz('option').con(ii).en(rv);
+    rv.el.addEventListener('change', function(ev) {
+        window[varname] = rv.el.options[rv.el.selectedIndex].value;
+    });
+    return rv;
+}
+
 function Hechicero(el) {
     this.el = el;
 }
@@ -47,12 +56,15 @@ function fila(texto, class_) {
     return new Fila(texto, class_);
 }
 
-function FilaDom(texto, dom) {
+function FilaSelect(texto, textoParcial, select) {
     this.texto = texto;
-    this.dom = dom;
+    this.textoParcial = textoParcial;
+    this.select = select;
 }
-FilaDom.prototype.hazTitulo = function() {
-    return new Hechicero(this.dom.el.cloneNode(document, true));
+FilaSelect.prototype.hazTitulo = function() {
+    var th = haz('th').con(this.textoParcial);
+    this.select.en(th);
+    return th;
 }
 
 var tCorrido = haz('th').con('t <<')
@@ -60,10 +72,12 @@ var tCorrido = haz('th').con('t <<')
 ;
 for (var ii = 0; ii < 10; ii++) haz('option').con(ii).en(corridoSelect);
 
+window.e1 = window.e2 = window.e3 = 0;
+
 var filas = [ fila('t')
-            , new FilaDom('t << e1', tCorrido)
-            , new FilaDom('t << e2', tCorrido)
-            , new FilaDom('t << e3', tCorrido)
+            , new FilaSelect('t << e1', 't <<', select('e1'))
+            , new FilaSelect('t << e2', 't <<', select('e2'))
+            , new FilaSelect('t << e3', 't <<', select('e3'))
             , fila('xa^xb^xc', 'xor')
             , fila('oa|ob|oc', 'or')
             , fila('sa+sb+sc', 'sum')
@@ -127,6 +141,18 @@ function tsort(variables) {
     return res.join(', ');
 }
 
+
+// Considerar nombre como un input de afuera, así que no hace falta en las dependencias.
+
+function definir(defs, nombre) {
+    for (var ii = 0; ii < defs.length; ii++) {
+        var ee = defs[ii].entradas
+          , idx = ee.indexOf(nombre)
+        ;
+        if (idx !== -1) ee.splice(idx, 1);
+    }
+}
+
 function formulaActual() {
     var defs = [];
     for (var ii = 0; ii < columns.length; ii++) {
@@ -145,20 +171,16 @@ function formulaActual() {
         defs.push({name: col.text, expr: expr, entradas: expr.match(/[a-z_]\w+/g) || []});
     }
 
-    // "definir" t
-    for (var ii = 0; ii < defs.length; ii++) {
-        var ee = defs[ii].entradas
-          , idx = ee.indexOf('t')
-        ;
-        if (idx !== -1) ee.splice(idx, 1);
-    }
-
+    definir(defs, 't');
+    definir(defs, 'e1');
+    definir(defs, 'e2');
+    definir(defs, 'e3');
     return tsort(defs);
 }
 
 var recomputer = null;
 
-tB.addEventListener('click', function() {
+tB.addEventListener('change', function() {
     if (recomputer !== null) clearTimeout(recomputer);
     recomputer = setTimeout(recompute, 200);
     return true;
