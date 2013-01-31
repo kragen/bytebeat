@@ -72,7 +72,7 @@ var tCorrido = haz('th').con('t <<')
 ;
 for (var ii = 0; ii < 10; ii++) haz('option').con(ii).en(corridoSelect);
 
-window.e1 = window.e2 = window.e3 = 0;
+window.e1 = window.e2 = window.e3 = window.rshift = 0;
 
 var filas = [ fila('t')
             , new FilaSelect('t << e1', 't <<', select('e1'))
@@ -91,7 +91,7 @@ var columns = [ {text: 'sa', 'class': 'sum'}
               , {text: 'xa', 'class': 'xor'}
               , {text: 'xb', 'class': 'xor'}
               , {text: 'xc', 'class': 'xor'}
-              , {text: 'audio'}
+              , {text: 'audio', select: 'rshift'}
               ];
 
 for (var ii = 0; ii < filas.length; ii++) {
@@ -112,7 +112,9 @@ var fondo = haz('tr').en(tB);
 haz('td', {'class': 'sum'}).en(fondo);
 
 for (var jj = 0; jj < columns.length; jj++) {
-    haz('th', {'class': columns[jj]['class']}).con(columns[jj].text).en(fondo);
+    var col = columns[jj];
+    var th = haz('th', {'class': col['class']}).con(col.text).en(fondo);
+    if (col.select) select(col.select).en(th);
 }
 
 function tsort(variables) {
@@ -168,6 +170,7 @@ function formulaActual() {
             }
         }
         var expr = AND(factores);
+        if (col.text === 'audio') expr += '>> rshift';
         defs.push({name: col.text, expr: expr, entradas: expr.match(/[a-z_]\w+/g) || []});
     }
 
@@ -175,6 +178,7 @@ function formulaActual() {
     definir(defs, 'e1');
     definir(defs, 'e2');
     definir(defs, 'e3');
+    definir(defs, 'rshift');
     return tsort(defs);
 }
 
